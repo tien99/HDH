@@ -1,0 +1,28 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "readline.h"
+#include "factorial.h"
+
+int main(int argc, char *argv[]) {
+	char *str = (char *) malloc(51);
+	int t = 0,
+	    i = 0;
+	scanf("%d\n", &t);
+	while (i < t) {
+		if (read_line(str)) {
+			int a = atoi(str);
+			char *str = factorial(a);
+			if (t != NULL) {
+			    puts(t);
+			    free(t);
+			} else {
+			    printf("Overflow!\n");
+			}
+		} else {
+			printf("%d\n", -1);
+		}
+		++i;
+	}
+	free(str);
+	return 0;
+}

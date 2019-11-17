@@ -1,0 +1,71 @@
+#include "ex1.h"
+
+memNode *findFree(size_t size)
+{
+    memNode *cur = head;
+    while (cur != NULL) {
+        if (cur->isFree == 1 && cur->size >= size)
+            return cur;
+        cur = cur->next;
+    }
+    return NULL;
+}
+
+void *aligned_malloc(unsigned int size, unsigned int align)
+{
+    if (size == 0)
+        return NULL;
+    if (ceil(log2((long)align)) != floor(log2((long)align)))
+        return NULL;
+    unsigned int total_size = size + align - 1 + sizeof(memNode);
+    memNode *header = findFree(total_size);
+    void *ret = NULL;
+    if (header != NULL) {
+        header->isFree = 0;
+        ret = (void *) (((size_t)header + sizeof(memNode) + align - 1) & ~((size_t) align - 1));
+        *((void **)((size_t)ret - sizeof(memNode))) = header;
+        return ret;
+    }
+    void *block = sbrk(total_size);
+    if (block == (void *) -1)
+        return NULL;
+    header = block;
+    header->size = total_size;
+    header->block = (size_t)block;
+    header->isFree = 0;
+    header->next = NULL;
+    if (head == NULL)
+        head = header;
+    if (tail != NULL)
+        tail->next = header;
+    tail = header;
+    ret = (void *) (((size_t)header + sizeof(memNode) + align - 1) & ~((size_t) align - 1));
+    *((void **)((size_t)ret - sizeof(memNode))) = header;
+    return ret;
+}
+
+void aligned_free(void *ptr)
+{
+    if (ptr == NULL)
+        return;
+    memNode *header = (memNode *)((size_t)ptr - sizeof(memNode));
+    void *prgBrk = sbrk(0);
+    if (header->block + header->size == (size_t)prgBrk) {
+        if (head == tail) {
+            head = NULL;
+            tail = NULL;
+        } else {
+            memNode *tmp = head;
+            while (tmp != NULL) {
+                if (tmp->next == tail) {
+                    tmp->next = NULL;
+                    tail = tmp;
+                }
+                tmp = tmp->next;
+            }
+        }
+        sbrk(0 - (unsigned int)header->size - sizeof(memNode));
+        return;
+    }
+    header->isFree = 1;
+}
