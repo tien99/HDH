@@ -1,0 +1,1 @@
+cmd_/home/miti99/modules/get_proc_info.ko := ld -r -m elf_x86_64  -z max-page-size=0x200000 -T ./scripts/module-common.lds  --build-id  -o /home/miti99/modules/get_proc_info.ko /home/miti99/modules/get_proc_info.o /home/miti99/modules/get_proc_info.mod.o ;  true
