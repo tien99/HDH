@@ -5,5 +5,5 @@
 
 long get_proc_info(pid_t pid, struct procinfos *info)
 {
-    return syscall(548, pid, info);
+	return syscall(548, pid, info);
 }
